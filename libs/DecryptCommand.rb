@@ -6,7 +6,7 @@ require 'base64'
 
 class DecryptCommand
 
-  VER1_REGEXP = Regexp.compile("^(\x01)([\x00-\xFF]{32})([\x00-\xFF]*)$")
+  VER1_REGEXP = Regexp.compile("\\A(\x01)([\x00-\xFF]{32})([\x00-\xFF]*)\\Z")
 
   attr_accessor :source, :destination
 
