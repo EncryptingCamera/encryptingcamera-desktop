@@ -1,8 +1,7 @@
 # encoding: US-ASCII
 require 'libs/Paths.rb'
 require 'libs/KeyConfiguration.rb'
-require 'json'
-require 'base64'
+require 'io/console'
 
 class DecryptCommand
 
@@ -21,16 +20,34 @@ class DecryptCommand
       sender_public_key = RbNaCl::PublicKey.new( public_key_bytes )
 
       keyconfig = KeyConfiguration.new( Paths.config_dir )
+
+      if keyconfig.key_encrypted?
+        print "Passphrase: "
+        passphrase = STDIN.noecho(&:gets).chomp
+        print "\n"
+        begin
+          keyconfig.decrypt_key(passphrase)
+        rescue WrongPassphraseError
+          puts "Wrong passphrase."
+          exit(false)
+        end
+      end
+
       our_private_key = keyconfig.get_private_key
 
-      box = RbNaCl::SimpleBox.from_keypair(sender_public_key, our_private_key)
-      plaintext = box.decrypt( ciphertext_bytes )
+      begin
+        box = RbNaCl::SimpleBox.from_keypair(sender_public_key, our_private_key)
+        plaintext = box.decrypt( ciphertext_bytes )
+      rescue RbNaCl::CryptoError
+        puts "Decryption failed."
+        exit(false)
+      end
 
       File.open( @destination, "w") do |f|
         f.write(plaintext)
       end
     else
-      STDERR.puts "Unsupported version."
+      STDERR.puts "Invalid input file or unsupported version."
       exit(false)
     end
   end
