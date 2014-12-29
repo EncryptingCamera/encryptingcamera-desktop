@@ -8,8 +8,7 @@ class ShowPublicKeyCommand
   def run
     # Load the private key, and get its public key.
     key_config = KeyConfiguration.new(Paths.config_dir)
-    private_key = key_config.get_private_key
-    public_key = private_key.public_key
+    public_key = key_config.get_public_key
 
     # Write the QR code to a temp file.
     qr_file = Tempfile.new(['encc', '.png'])

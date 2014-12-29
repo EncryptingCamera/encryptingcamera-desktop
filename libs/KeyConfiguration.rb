@@ -12,6 +12,10 @@ class KeyConfiguration
     return RbNaCl::PrivateKey.new(key_bytes)
   end
 
+  def get_public_key
+    return get_private_key.public_key
+  end
+
   # Re-create the configuration directory with a new private key.
   def create_new!
     if Dir.exist? @config_dir
